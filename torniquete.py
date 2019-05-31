@@ -57,7 +57,7 @@ def main():
 			monto = 0
 			#hacer que la venta sea null, los datos o de hecho, no incluir venta
 
-		hsalida = hentrada + datetime.timedelta(minutes=np.random.uniform(2,61)) #tal vez es asi
+		hsalida = hentrada + datetime.timedelta(minutes=np.random.uniform(2,60)) #tal vez es asi
 		payload = {
 				"idtienda": int(idtienda),
 				"idtorniquete": int(idtorniquete),

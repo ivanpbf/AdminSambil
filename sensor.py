@@ -18,6 +18,8 @@ def main:
     		
 	hora = datetime.datetime.now().replace(minute=0, second=0) ##nuestra
 	personas = ["1","2","3","4","5","6","7","8","9","10"]
+	tiendas = ["1","2","3","4","5"]
+	mesa = ["1","2","3","4","5"]
 	##eventualmente habra que hacer un for o algo similar que llene personas con una cantidad mayor, usemos 10 por ahora para pruebas
 
 	while(True): ##condicion para cual se sigue haciendo, por ejemplo, creo que deberiamos poner aqui el dia, cuando se cumpla un mes, para?
@@ -36,13 +38,23 @@ def main:
 		else:
 			#hombre
 		#fk es el id de entrante basicamente
+
 		aux = int(np.random.uniform(0,2))
 		telefono = None
 		if aux == 0:
     		telefono = True
 			#ojo, el MAC es el ID
 			#no creo que nos tengamos que complicar formateando un MAC de verdad, por lo tanto, vayamos con un MAC aleatorio
-			MAC = int(np.random.uniform())
+			MAC = int(np.random.uniform(1,9999999)) #poco probable que se repita pero cuidado
+			#se relaciona con usuario fk
 		else:
     		telefono = False
 
+		acceso = int(np.random.uniform(1,4))
+		#guardar hora de entrada y generar tambien hora de salida
+		#entre estas horas pasa lo demas
+
+		#generar mas randoms de los movimientos de la persona
+		#misma manera, elige una tienda en base a un numero, siendo 0 el que no entra a una tienda
+		#puede pasar multiples veces si no es 0
+		#lo mismo con mesa

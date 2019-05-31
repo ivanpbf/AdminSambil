@@ -26,7 +26,7 @@ def main():
 		entrante = int(np.random.uniform(0,len(personas))) 
 		#esta es la persona entrante
 		#aqui debe hacerse una verificacion de si ya esta en la base de datos
-		horaOcupada = datetime.datetime.now().replace(hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,61)), second=int(np.random.uniform(0,61))) #la hora entrante, OJO que no deberia ser now, deberia ser la que llegue del usuario, antes de su salida
+		horaOcupada = datetime.datetime.now().replace(hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60))) #la hora entrante, OJO que no deberia ser now, deberia ser la que llegue del usuario, antes de su salida
 		#esto es solo de prueba
 		#en la bdd cambien de fechaocupada a hora ocupada
 		#igual con desocupada
@@ -41,9 +41,9 @@ def main():
 		else:    
 			print("No telefono")
 			
-		horaDesocupada = horaOcupada + datetime.timedelta(minutes=np.random.uniform(2,61)) #tal vez es asi
+		horaDesocupada = horaOcupada + datetime.timedelta(minutes=np.random.uniform(2,60)) #tal vez es asi
 		payload = {
-				"id": int(idmesa),# Falta hacerlo Unique
+				"id": int(idmesa),
 				"fechaocupada": str(horaOcupada), #datetime? es date en postgre, verificar
 				"fechadesocupada": str(horaDesocupada)
 			}

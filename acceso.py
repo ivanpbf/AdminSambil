@@ -32,35 +32,24 @@ def main():
 		#esto es si creamos sus atributos
 		#vamos a los rasgos
 		edad = int(np.random.uniform(12,81)) #pongo 12 como edad minima
-		sexo = int(np.random.uniform(0,2))
-		if sexo == 0:
+		sexoAux = int(np.random.uniform(0,2))
+		if sexoAux == 0:
+    		sexo = "F"
 			print("Mujer")
 		else:
 			print("Hombre")
 		#fk es el id de entrante basicamente
 
 		aux = int(np.random.uniform(0,2))
-		telefono = -1
+		telefono = None
 		if aux == 0:
 			telefono = True
 			MAC = int(np.random.uniform(1,9999999))
-			print(MAC)
 		else:
 			telefono = False
 
 		acceso = int(np.random.uniform(1,4))
-		time.sleep(5)
-
-		#guardar hora de entrada y generar tambien hora de salida
-		#entre estas horas pasa lo demas
-
-		#generar mas randoms de los movimientos de la persona
-		#misma manera, elige una tienda en base a un numero, siendo 0 el que no entra a una tienda
-		#puede pasar multiples veces si no es 0
-		#lo mismo con mesa
-
-		print(sexo)
-		print(edad)
+		#time.sleep(5)
 		
 if __name__ == '__main__':
 	main()

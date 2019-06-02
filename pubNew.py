@@ -30,19 +30,21 @@ def main():
 	tiendas = ["1","2","3","4","5"] #auxiliar
 	nombresTiendas = ["Electronicos","Ropa","Zapatos","Electrodomesticos","Libros"] #auxiliar
 	mesas = ["1","2","3","4","5"]
+	fechaI = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,59)), second=int(np.random.uniform(0,59))) #la hora entrante, falta el dia
 	#ubicacion de tiendas no estoy seguro de si sea necesario
 	venta = 0 #las ventas del dia o totales
 	while(True):
-
 		entrante = int(np.random.uniform(1,4)) #Pueden entrar cualquier cantidad de personas por comodidad pongamos que sea de 1 a 3
 		entrando = entrante
-		fechaInicial = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60))) #la hora entrante, falta el dia
 		acceso = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
 		#idcamara, depende de la camara, por ahora las uso con el array
 		#Aqui va un query que inserte  estos datos en la tabla CamaraData
 
 		for i in range(entrante):					# Genera los datos para las "n" personas que entraron [0,n]
-			
+			#creamos la cedula para la persona
+			#por ahora hasta 20 para tener un control mejor de las personas
+			cedula = int(np.random.uniform(1,20))
+			#siempre va a haber la cedula
 			#los metodos del acceso
 			detectoRasgos =  np.random.rand()		# Random para ver si la camara pudo detectar los rasgos de la persona (edad,sexo)
 			if(detectoRasgos > 0.4):
@@ -56,16 +58,18 @@ def main():
 					sexo = "M"
 				# Se debe hacer un query que inserte esto en la tabla Rasgos
 				payloadR = {
-					"idrasgos": uid,
+					"cedula": cedula,
 					"edad": edad,
 					"sexo": sexo 	
 				}
-
 				client.publish('Sambil/rasgos',json.dumps(payloadR), qos=0)
 				#print(payloadR)
-
 			else:
-				print("No se detectaron los rasgos de la persona") # Se puede quitar
+				payloadR = {
+					"cedula": cedula
+				}
+				#client.publish('Sambil/rasgos',json.dumps(payloadR, qos = 0)) #publica los rasgos que consiguio, cedula siempre se "consigue"
+			
 
 			tieneTelefono = np.random.rand()		#Random para si la persona tiene telefono
 			tieneMAC = None
@@ -75,8 +79,10 @@ def main():
 				tieneMAC = True
 			
 				payloadU = {
-					"mac": mac
+					"mac": mac,
+					"cedula": cedula
 				}
+				#poner la cedula aca
 
 				client.publish('Sambil/usuario',json.dumps(payloadU), qos=0)
 				#print("U",payloadU)
@@ -85,15 +91,18 @@ def main():
 				tieneMAC = False
 				print("El usuario que ingreso no tiene telefono") # Se puede quitar
 
+			###############################################################################
+			#cambiemos esto, que siempre se ponga la cedula de la persona, cedula se relaciona con sus rasgos
 			if(detectoRasgos > 0.4 and tieneMAC == True): #TIENE MAC Y SE DETECTARON SUS RASGOS
 				payloadUR = {
 					"usuariofk": mac,
-					"rasgosfk": uid
+					"cedulafk": cedula
 				}
-
+				#ojo rasgos siendo la cedula siempre
 				#print(payloadUR)
 				client.publish('Sambil/usuariorasgo',json.dumps(payloadUR), qos=0)
-	
+			################################################################################
+
 			#los metodos de compra
 			entroTienda = np.random.rand()
 			if(entroTienda > 0.5):
@@ -103,13 +112,16 @@ def main():
 					idtorniquete = idTienda #por ahora
 					nombre = nombresTiendas[j]
 					#ubicacion sigo pensando que no
-					dateEntrada = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(int(np.random.uniform(fechaInicial.hour)),18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60)))
+					dateEntrada = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(int(np.random.uniform(fechaI.hour)),18)),minute=int(np.random.uniform(0,59)), second=int(np.random.uniform(0,59)))
 					#creo que eso funciona
+					##############################################
+					dateSalida = dateEntrada + datetime.timedelta(minutes=np.random.uniform(2,31))
 					#entradas de torniquete para ese torniquete+=1
 					#hacer el payload del torniquete?
 					payloadT = {
 						"idTorniquete": idtorniquete,
 						"hentrada": str(dateEntrada),
+						"hsalida": str(dateSalida),
 						"tiendafk": idTienda
 					}
 
@@ -119,17 +131,21 @@ def main():
 					compro = np.random.rand()
 					if(compro > 0.4):
 						monto = int(np.random.uniform(1,1000))
+						################### siempre la cedula
 						payloadV = {
 							"monto": monto,
 							"tiendafk": idTienda,
+							"cedula": cedula
 						}
 
 						client.publish('Sambil/venta',json.dumps(payloadV), qos=0)
-						
+						#############################
 						if (tieneMAC == True):
 							payloadVU = {
 								"monto": monto,
 								"tiendafk": idTienda,
+								"cedula": cedula,
+								"mac": mac
 							}
 			
 					else:
@@ -142,15 +158,28 @@ def main():
 			fueFeria = np.random.rand()
 			if(fueFeria > 0.5):
 				idmesa = int(np.random.uniform(0,len(mesas)))
-				fechaOcupada = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(int(np.random.uniform(fechaInicial.hour)),18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60)))
-				fechaDesocupada = fechaOcupada + datetime.timedelta(minutes=np.random.uniform(2,60)) 
-				payloadM = {
+				fechaOcupada = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(int(np.random.uniform(fechaI.hour)),18)),minute=int(np.random.uniform(0,59)), second=int(np.random.uniform(0,59)))
+				fechaDesocupada = fechaOcupada + datetime.timedelta(minutes=np.random.uniform(2,60))
+				################ojo, el proyecto dice que si la persona tiene telefono, se sabe quien es
+				############### como telefono siempre tiene la cedula de la persona, se sabe es por eso
+				if(tieneMAC):
+					payloadM = {
+						"nmesa": idmesa,
+						"fechaocupada": str(fechaOcupada),
+						"fechadesocupada": str(fechaDesocupada),
+						"mac": mac
+					}
+					client.publish('Sambil/mesa',json.dumps(payloadM), qos=0)
+					#print(payloadM)
+				else:
+					payloadM = {
 						"nmesa": idmesa,
 						"fechaocupada": str(fechaOcupada),
 						"fechadesocupada": str(fechaDesocupada)
-				}	
-				client.publish('Sambil/mesa',json.dumps(payloadM), qos=0)
-				#print(payloadM)
+					}	
+					client.publish('Sambil/mesa',json.dumps(payloadM), qos=0)
+					#print(payloadM)
+				
 
 			else:
 				print("No fue a la feria")
@@ -158,7 +187,7 @@ def main():
 			saliendo+=1
 			time.sleep(3)
 
-		dia+=1
+		fechaI = fechaI + datetime.timedelta(days = 1)
 	
 if __name__ == '__main__':
 	main()

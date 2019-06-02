@@ -30,17 +30,22 @@ def main():
 	tiendas = ["1","2","3","4","5"] #auxiliar
 	nombresTiendas = ["Electronicos","Ropa","Zapatos","Electrodomesticos","Libros"] #auxiliar
 	mesas = ["1","2","3","4","5"]
-	fechaI = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,59)), second=int(np.random.uniform(0,59))) #la hora entrante, falta el dia
+	fechaI = datetime.datetime.now().replace(month=mes,day=dia) #la hora entrante, falta el dia
 	#ubicacion de tiendas no estoy seguro de si sea necesario
 	venta = 0 #las ventas del dia o totales
 	while(True):
 		entrante = int(np.random.uniform(1,4)) #Pueden entrar cualquier cantidad de personas por comodidad pongamos que sea de 1 a 3
 		entrando = entrante
-		acceso = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
-		#idcamara, depende de la camara, por ahora las uso con el array
-		#Aqui va un query que inserte  estos datos en la tabla CamaraData
 
 		for i in range(entrante):					# Genera los datos para las "n" personas que entraron [0,n]
+			############################################################################ REFERENTE AL ACCESO
+			acceso = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
+			#idcamara, depende de la camara, por ahora las uso con el array
+			horaAccesoE = fechaI.replace(hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60)))
+			auxHoraultima = horaAccesoE #esta la usare para marcar la ultima actividad
+			print("Entro")
+			print(horaAccesoE)
+			##############################################################################
 			#creamos la cedula para la persona
 			#por ahora hasta 20 para tener un control mejor de las personas
 			cedula = int(np.random.uniform(1,20))
@@ -112,10 +117,12 @@ def main():
 					idtorniquete = idTienda #por ahora
 					nombre = nombresTiendas[j]
 					#ubicacion sigo pensando que no
-					dateEntrada = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(int(np.random.uniform(fechaI.hour)),18)),minute=int(np.random.uniform(0,59)), second=int(np.random.uniform(0,59)))
-					#creo que eso funciona
+					dateEntrada = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
+					#dateEntrada = auxHoraultima.replace(hour=int(np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18)),minute=int(np.random.uniform(auxHoraultima.minute,60)), second=int(np.random.uniform(0,60)))
+					#creo que eso funciona, ahora uso de referencia la ultima hora de la persona
 					##############################################
 					dateSalida = dateEntrada + datetime.timedelta(minutes=np.random.uniform(2,31))
+					auxHoraultima = dateSalida
 					#entradas de torniquete para ese torniquete+=1
 					#hacer el payload del torniquete?
 					payloadT = {
@@ -158,8 +165,10 @@ def main():
 			fueFeria = np.random.rand()
 			if(fueFeria > 0.5):
 				idmesa = int(np.random.uniform(0,len(mesas)))
-				fechaOcupada = datetime.datetime.now().replace(month=mes,day=dia,hour=int(np.random.uniform(int(np.random.uniform(fechaI.hour)),18)),minute=int(np.random.uniform(0,59)), second=int(np.random.uniform(0,59)))
+				fechaOcupada = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
+				#fechaOcupada = auxHoraultima.replace(hour=int(np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18)),minute=int(np.random.uniform(auxHoraultima.minute,60)), second=int(np.random.uniform(0,60)))
 				fechaDesocupada = fechaOcupada + datetime.timedelta(minutes=np.random.uniform(2,60))
+				auxHoraultima = fechaDesocupada
 				################ojo, el proyecto dice que si la persona tiene telefono, se sabe quien es
 				############### como telefono siempre tiene la cedula de la persona, se sabe es por eso
 				if(tieneMAC):
@@ -184,6 +193,16 @@ def main():
 			else:
 				print("No fue a la feria")
 
+			horaAccesoS = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
+			print("Salio")
+			print(horaAccesoS)
+			salida = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
+			payloadA = {
+				"entrada": acceso,
+				"salida": salida,
+				"horaAcceso": horaAccesoE,
+				"horaSalida": horaAccesoS
+			}
 			saliendo+=1
 			time.sleep(3)
 

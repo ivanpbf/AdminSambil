@@ -31,9 +31,9 @@ def main():
 	entrando = 0
 	#todos estos valores son de prueba y auxiliares
 	camaras=["1","2","3"] #auxiliar
-	tiendas = ["1","2","3","4","5"] #auxiliar
-	nombresTiendas = ["Electronicos","Ropa","Zapatos","Electrodomesticos","Libros"] #auxiliar
-	mesas = ["1","2","3","4","5"]
+	tiendas = ["1","2","3","4","5","6","7","8","9","10"] #auxiliar
+	nombresTiendas = ["Electronicos","Ropa","Zapatos","Electrodomesticos","Libros","Perfumes","Mercado","Muebles","Accesorios","Juguetes"] #auxiliar
+	mesas = ["1","2","3","4","5","6","7","8","9","10"]
 	fechaI = datetime.datetime.now().replace(month=mes,day=dia) #la hora entrante, falta el dia
 	#ubicacion de tiendas no estoy seguro de si sea necesario
 	venta = 0 #las ventas del dia o totales
@@ -43,7 +43,7 @@ def main():
 
 		for i in range(entrante):					# Genera los datos para las "n" personas que entraron [0,n]
 
-			acceso = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
+			acceso = int(np.random.uniform(1,len(camaras)+1)) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
 			#idcamara, depende de la camara, por ahora las uso con el array
 			horaAccesoE = fechaI.replace(hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60)))
 			auxHoraultima = horaAccesoE #esta la usare para marcar la ultima actividad
@@ -84,7 +84,7 @@ def main():
 					detectoRasgos =  np.random.rand()		# Random para ver si la camara pudo detectar los rasgos de la persona, ya que ha pasado antes, incrementa el chance
 					if(detectoRasgos > 0.5):
 						sexoAux = int(np.random.uniform(0,2))
-						edad = int(np.random.uniform(12,81))	
+						edad = int(np.random.uniform(12,61))	
 						if sexoAux == 0:
 							sexo = "F"
 						else:
@@ -176,7 +176,7 @@ def main():
 			#vamos a la feria
 			fueFeria = np.random.rand()
 			if(fueFeria > 0.5):
-				idmesa = int(np.random.uniform(0,len(mesas)))
+				idmesa = int(np.random.uniform(1,len(mesas)+1))
 				fechaOcupada = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
 
 				fechaDesocupada = fechaOcupada + datetime.timedelta(minutes=np.random.uniform(2,60))
@@ -201,7 +201,7 @@ def main():
 					#print(payloadM)
 
 			horaAccesoS = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
-			salida = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
+			salida = int(np.random.uniform(1,len(camaras)+1)) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
 			payloadA = {
 				"entrada": acceso,
 				"salida": salida,

@@ -2,11 +2,14 @@ import ssl
 import sys
 import random
 import time
+import psycopg2
 import paho.mqtt.client
 import paho.mqtt.publish
 import datetime
 import numpy as np
 import simplejson as json
+
+myConnection = psycopg2.connect(host = 'localhost', user= 'postgres',password ='pass123', dbname= 'Proyecto1BD') #estos son los mios
 
 def on_connect(client, userdata, flags, rc):
 	print('connected')
@@ -16,6 +19,7 @@ def main():
 	client.on_connect = on_connect
 	client.qos = 0 			
 	client.connect(host='localhost')
+	cur = myConnection.cursor()
 
 	start_dt = datetime.date.today().replace(day=1, month=1).toordinal()
 	end_dt = datetime.date.today().toordinal()
@@ -38,64 +42,90 @@ def main():
 		entrando = entrante
 
 		for i in range(entrante):					# Genera los datos para las "n" personas que entraron [0,n]
-			############################################################################ REFERENTE AL ACCESO
+
 			acceso = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
 			#idcamara, depende de la camara, por ahora las uso con el array
 			horaAccesoE = fechaI.replace(hour=int(np.random.uniform(8,18)),minute=int(np.random.uniform(0,60)), second=int(np.random.uniform(0,60)))
 			auxHoraultima = horaAccesoE #esta la usare para marcar la ultima actividad
-			print("Entro")
-			print(horaAccesoE)
-			##############################################################################
+
 			#creamos la cedula para la persona
 			#por ahora hasta 20 para tener un control mejor de las personas
 			cedula = int(np.random.uniform(1,20))
 			#siempre va a haber la cedula
-			#los metodos del acceso
-			detectoRasgos =  np.random.rand()		# Random para ver si la camara pudo detectar los rasgos de la persona (edad,sexo)
-			if(detectoRasgos > 0.4):
-				sexoAux = int(np.random.uniform(0,2))
-				edad = int(np.random.uniform(12,81))
-				uid = int(np.random.uniform(0,999999))
-
-				if sexoAux == 0:
-					sexo = "F"
+			cur.execute('SELECT * FROM "rasgos" WHERE "cedula" = %s', [cedula])
+			#esto en realidad es buscar la persona
+			persona = cur.fetchone()
+			seEncontro = False
+			if persona is None:
+				detectoRasgos =  np.random.rand()		# Random para ver si la camara pudo detectar los rasgos de la persona (edad,sexo)
+				if(detectoRasgos > 0.6):
+					sexoAux = int(np.random.uniform(0,2))
+					edad = int(np.random.uniform(12,81))
+					if sexoAux == 0:
+						sexo = "F"
+					else:
+						sexo = "M"
+					payloadR = {
+						"cedula": cedula,
+						"edad": edad,
+						"sexo": sexo 	
+					}
+					client.publish('Sambil/rasgos',json.dumps(payloadR), qos=0)
 				else:
-					sexo = "M"
-				# Se debe hacer un query que inserte esto en la tabla Rasgos
-				payloadR = {
-					"cedula": cedula,
-					"edad": edad,
-					"sexo": sexo 	
-				}
-				client.publish('Sambil/rasgos',json.dumps(payloadR), qos=0)
+					payloadNR = {
+						"cedula": cedula
+					}
+					client.publish('Sambil/rasgos',json.dumps(payloadNR), qos = 0) #publica los rasgos que consiguio, cedula siempre se "consigue"
 			else:
-				payloadNR = {
-					"cedula": cedula
-				}
-				client.publish('Sambil/rasgos',json.dumps(payloadNR), qos = 0) #publica los rasgos que consiguio, cedula siempre se "consigue"
-			
-
-			tieneTelefono = np.random.rand()		#Random para si la persona tiene telefono
+				seEncontro = True
+				cur.execute('SELECT edad FROM "rasgos" WHERE "cedula" = %s', [cedula])
+				edadr = cur.fetchone()
+				if edadr is None:
+					detectoRasgos =  np.random.rand()		# Random para ver si la camara pudo detectar los rasgos de la persona, ya que ha pasado antes, incrementa el chance
+					if(detectoRasgos > 0.5):
+						sexoAux = int(np.random.uniform(0,2))
+						edad = int(np.random.uniform(12,81))	
+						if sexoAux == 0:
+							sexo = "F"
+						else:
+							sexo = "M"
+						#payloadSE = {
+						#	"cedula": cedula,
+						#	"edad": edad,
+						#	"sexo": sexo
+						#}
+						#client.publish('Sambil/rasgos',json.dumps(payloadSE), qos = 0) 
+						cur.execute('UPDATE rasgos SET "edad" = %s, "sexo" = %s WHERE "cedula" = %s;', (edad, sexo, cedula))
 			tieneMAC = None
-
-			if(tieneTelefono > 0.3):
-				mac = int(np.random.uniform(0,9999999))
-				tieneMAC = True
-			
-				payloadU = {
-					"mac": mac,
-					"cedula": cedula
-				}
-				#poner la cedula aca
-
-				client.publish('Sambil/usuario',json.dumps(payloadU), qos=0)
-				#print("U",payloadU)
-
+			if seEncontro:
+				cur.execute('SELECT mac FROM "usuario" WHERE "cedula" = %s', [cedula])
+				macaux = cur.fetchone()
+				if macaux is None:
+					tieneTelefono = np.random.rand()		#tal vez ahora tendra un telefono
+					if(tieneTelefono > 0.4):
+						mac = int(np.random.uniform(0,9999999))
+						tieneMAC = True
+						#payloadUMU = {
+						#	"mac": mac,
+						#	"cedula": cedula
+						#}
+						#client.publish('Sambil/usuario',json.dumps(payloadUMU), qos=0)
+						cur.execute('UPDATE usuario SET "mac" = %s WHERE "cedula" = %s;', (mac, cedula))
+				else:
+					mac = macaux[0]
+					tieneMAC = True
 			else:
-				tieneMAC = False
-				#print("El usuario que ingreso no tiene telefono") # Se puede quitar
-
-			#los metodos de compra
+				tieneTelefono = np.random.rand()		#Random para si la persona tiene telefono
+				if(tieneTelefono > 0.3):
+					mac = int(np.random.uniform(0,9999999))
+					tieneMAC = True
+					payloadU = {
+						"mac": mac,
+						"cedula": cedula
+					}
+					client.publish('Sambil/usuario',json.dumps(payloadU), qos=0)
+			
+			#los metodos de compra y tiendas
 			entroTienda = np.random.rand()
 			if(entroTienda > 0.5):
 				for j in range(len(tiendas)):
@@ -124,13 +154,13 @@ def main():
 					if(compro > 0.4):
 						monto = int(np.random.uniform(1,1000))
 						if tieneMAC == True:
-							payloadVU = {
+							payloadV = {
 								"monto": monto,
 								"tiendafk": idTienda,
 								"cedula": cedula,
 								"mac": mac
 							}
-							client.publish('Sambil/venta',json.dumps(payloadVU), qos=0)
+							client.publish('Sambil/venta',json.dumps(payloadV), qos=0)
 						else:
 							payloadV = {
 								"monto": monto,
@@ -139,11 +169,9 @@ def main():
 							}
 							client.publish('Sambil/venta',json.dumps(payloadV), qos=0)
 			
-					else:
-						print("No compro en la tienda "+nombre)
+					#else:
+					#	print("No compro en la tienda "+nombre)
 					#salidas de torniquete para ese torniquete+=1
-			else:
-				print("No entro a tiendas")
 			
 			#vamos a la feria
 			fueFeria = np.random.rand()
@@ -171,14 +199,8 @@ def main():
 					}	
 					client.publish('Sambil/mesa',json.dumps(payloadMU), qos=0)
 					#print(payloadM)
-				
-
-			else:
-				print("No fue a la feria")
 
 			horaAccesoS = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
-			print("Salio")
-			print(horaAccesoS)
 			salida = int(np.random.uniform(0,len(camaras))) #luego no hara falta poner len(camaras) porque ya sabremos cuantas camaras hay en el centro Comercial
 			payloadA = {
 				"entrada": acceso,

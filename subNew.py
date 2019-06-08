@@ -2,7 +2,7 @@ import ssl
 import sys
 import psycopg2
 import paho.mqtt.client
-import json
+import simplejson as json
 import time
 import datetime
 import numpy as np
@@ -14,6 +14,12 @@ def insertarRasgos(r):
     cur.execute("INSERT INTO rasgos (cedula, edad, sexo) VALUES (%s, %s, %s);", (r["cedula"], r["edad"], r["sexo"])) #INSERTAR EN LA TABLA rasgos
     myConnection.commit()
 
+def insertarRasgosNO(nr):
+    cur = myConnection.cursor()
+    print(nr)
+    cur.execute("INSERT INTO rasgos (cedula) VALUES (%s)", (nr["cedula"],)) #INSERTAR EN LA TABLA rasgos
+    myConnection.commit()
+
 def insertarUsuario(u):
     cur = myConnection.cursor()
     cur.execute("INSERT INTO usuario (mac, cedula) VALUES (%s,%s);", (u["mac"],u["cedula"])) #INSERTAR EN LA TABLA usuario
@@ -21,7 +27,7 @@ def insertarUsuario(u):
 
 def insertarTorniquete(t):
     cur = myConnection.cursor()
-    cur.execute("INSERT INTO torniquete (idTorniquete, hentrada, hsalida, tiendafk) VALUES (%s,%s,%s,%s);", (t["idTorniquete"],t["hentrada"], t["hsalida"],t["tiendafk"])) #INSERTAR EN LA TABLA torniquete
+    cur.execute("INSERT INTO torniquete (idtorniquete, hentrada, hsalida, tiendafk) VALUES (%s,%s,%s,%s);", (t["idtorniquete"],t["hentrada"], t["hsalida"],t["tiendafk"])) #INSERTAR EN LA TABLA torniquete
     myConnection.commit()
 
 def insertarVenta(v):
@@ -46,7 +52,7 @@ def insertarMesaMAC(mu):
 
 def insertarAcceso(a):
     cur = myConnection.cursor()
-    cur.execute("INSERT INTO acceso (entrada, salida, horaAcceso, horaSalida, cedula) VALUES (%s,%s,%s,%s,%s);", (a["entrada"], a["salida"], a["horaAcceso"], a["horaSalida"], a["cedula"])) #INSERTAR EN LA TABLA acceso
+    cur.execute("INSERT INTO acceso (entrada, salida, horaacceso, horasalida, cedula) VALUES (%s,%s,%s,%s,%s);", (a["entrada"], a["salida"], a["horaacceso"], a["horasalida"], a["cedula"])) #INSERTAR EN LA TABLA acceso
     myConnection.commit()
 
 
@@ -55,49 +61,55 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(topic='Sambil/#', qos=0)    
 
 def on_message(client, userdata, message):   
-    r = json.loads(message.payload)
+    r = json.loads(message.payload.decode('utf-8'))
     print(r)  
     print('------------------------------')     
     insertarRasgos(r)
 
 def on_message2(client, userdata, message):   
-    u = json.loads(message.payload)
+    nr = json.loads(message.payload.decode('utf-8'))
+    print(nr)  
+    print('------------------------------')     
+    insertarRasgosNO(nr)
+
+def on_message3(client, userdata, message):   
+    u = json.loads(message.payload.decode('utf-8'))
     print(u) 
     print('------------------------------')     
     insertarUsuario(u)
 
-def on_message3(client, userdata, message):   
-    t = json.loads(message.payload)
+def on_message4(client, userdata, message):   
+    t = json.loads(message.payload.decode('utf-8'))
     print(t) 
     print('------------------------------')     
     insertarTorniquete(t)
 
-def on_message4(client, userdata, message):   
-    v = json.loads(message.payload)
+def on_message5(client, userdata, message):   
+    v = json.loads(message.payload.decode('utf-8'))
     print(v) 
     print('------------------------------')     
     insertarVenta(v)
 
-def on_message5(client, userdata, message):   
-    vu = json.loads(message.payload)
+def on_message6(client, userdata, message):   
+    vu = json.loads(message.payload.decode('utf-8'))
     print(vu) 
     print('------------------------------')     
     insertarVentaMAC(vu)
 
-def on_message6(client, userdata, message):   
-    m = json.loads(message.payload)
+def on_message7(client, userdata, message):   
+    m = json.loads(message.payload.decode('utf-8'))
     print(m) 
     print('------------------------------')     
     insertarMesa(m)
 
-def on_message7(client, userdata, message):   
-    mu = json.loads(message.payload)
+def on_message8(client, userdata, message):   
+    mu = json.loads(message.payload.decode('utf-8'))
     print(mu) 
     print('------------------------------')     
     insertarMesaMAC(mu)
 
-def on_message8(client, userdata, message):   
-    a = json.loads(message.payload)
+def on_message9(client, userdata, message):   
+    a = json.loads(message.payload.decode('utf-8'))
     print(a) 
     print('------------------------------')     
     insertarAcceso(a)
@@ -106,13 +118,14 @@ def main():
     client = paho.mqtt.client.Client()
     client.on_connect = on_connect
     client.message_callback_add('Sambil/rasgos',  on_message)
-    client.message_callback_add('Sambil/usuario', on_message2)
-    client.message_callback_add('Sambil/torniquete', on_message3)
-    client.message_callback_add('Sambil/venta', on_message4)
+    client.message_callback_add('Sambil/rasgos',  on_message2)
+    client.message_callback_add('Sambil/usuario', on_message3)
+    client.message_callback_add('Sambil/torniquete', on_message4)
     client.message_callback_add('Sambil/venta', on_message5)
-    client.message_callback_add('Sambil/mesa', on_message6)
+    client.message_callback_add('Sambil/venta', on_message6)
     client.message_callback_add('Sambil/mesa', on_message7)
-    client.message_callback_add('Sambil/acceso', on_message8)
+    client.message_callback_add('Sambil/mesa', on_message8)
+    client.message_callback_add('Sambil/acceso', on_message9)
     client.connect(host='localhost') 
     client.loop_forever()
 

@@ -6,7 +6,7 @@ import paho.mqtt.client
 import paho.mqtt.publish
 import datetime
 import numpy as np
-import json
+import simplejson as json
 
 def on_connect(client, userdata, flags, rc):
 	print('connected')
@@ -68,12 +68,11 @@ def main():
 					"sexo": sexo 	
 				}
 				client.publish('Sambil/rasgos',json.dumps(payloadR), qos=0)
-				#print(payloadR)
 			else:
-				payloadR = {
+				payloadNR = {
 					"cedula": cedula
 				}
-				client.publish('Sambil/rasgos',json.dumps(payloadR), qos = 0) #publica los rasgos que consiguio, cedula siempre se "consigue"
+				client.publish('Sambil/rasgos',json.dumps(payloadNR), qos = 0) #publica los rasgos que consiguio, cedula siempre se "consigue"
 			
 
 			tieneTelefono = np.random.rand()		#Random para si la persona tiene telefono
@@ -112,7 +111,7 @@ def main():
 					#entradas de torniquete para ese torniquete+=1
 					#hacer el payload del torniquete?
 					payloadT = {
-						"idTorniquete": idtorniquete,
+						"idtorniquete": idtorniquete,
 						"hentrada": str(dateEntrada),
 						"hsalida": str(dateSalida),
 						"tiendafk": idTienda
@@ -124,7 +123,7 @@ def main():
 					compro = np.random.rand()
 					if(compro > 0.4):
 						monto = int(np.random.uniform(1,1000))
-						if (tieneMAC == True):
+						if tieneMAC == True:
 							payloadVU = {
 								"monto": monto,
 								"tiendafk": idTienda,
@@ -184,8 +183,8 @@ def main():
 			payloadA = {
 				"entrada": acceso,
 				"salida": salida,
-				"horaAcceso": str(horaAccesoE),
-				"horaSalida": str(horaAccesoS),
+				"horaacceso": str(horaAccesoE),
+				"horasalida": str(horaAccesoS),
 				"cedula": cedula
 			}
 			client.publish('Sambil/acceso',json.dumps(payloadA), qos=0)

@@ -38,7 +38,7 @@ def main():
 	#ubicacion de tiendas no estoy seguro de si sea necesario
 	venta = 0 #las ventas del dia o totales
 	while(True):
-		entrante = int(np.random.uniform(1,4)) #Pueden entrar cualquier cantidad de personas por comodidad pongamos que sea de 1 a 3
+		entrante = int(np.random.uniform(1,21)) #Pueden entrar cualquier cantidad de personas por comodidad pongamos que sea de 1 a 20
 		entrando = entrante
 
 		for i in range(entrante):					# Genera los datos para las "n" personas que entraron [0,n]
@@ -50,7 +50,7 @@ def main():
 
 			#creamos la cedula para la persona
 			#por ahora hasta 20 para tener un control mejor de las personas
-			cedula = int(np.random.uniform(1,20))
+			cedula = int(np.random.uniform(1,251)) #incremente a 250
 			#siempre va a haber la cedula
 			cur.execute('SELECT * FROM "rasgos" WHERE "cedula" = %s', [cedula])
 			#esto en realidad es buscar la persona

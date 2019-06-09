@@ -154,7 +154,7 @@ def main():
 						if tieneMAC == True:
 							payloadV = {
 								"monto": monto,
-								"tienda": idTienda,
+								"idtienda": idTienda,
 								"cedula": cedula,
 								"mac": mac
 							}
@@ -162,7 +162,7 @@ def main():
 						else:
 							payloadV = {
 								"monto": monto,
-								"tienda": idTienda,
+								"idtienda": idTienda,
 								"cedula": cedula
 							}
 							client.publish('Sambil/venta',json.dumps(payloadV), qos=0)

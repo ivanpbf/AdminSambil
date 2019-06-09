@@ -30,15 +30,15 @@ def insertarUsuario(u):
 
 def insertarTorniquete(t):
     cur = myConnection.cursor()
-    cur.execute("INSERT INTO torniquete (idtorniquete, hentrada, hsalida, tiendafk) VALUES (%s,%s,%s,%s);", (t["idtorniquete"],t["hentrada"], t["hsalida"],t["tiendafk"])) #INSERTAR EN LA TABLA torniquete
+    cur.execute("INSERT INTO torniquete (idtienda, hentrada, hsalida) VALUES (%s,%s,%s);", (t["idtienda"],t["hentrada"], t["hsalida"])) #INSERTAR EN LA TABLA torniquete
     myConnection.commit()
 
 def insertarVenta(v):
     cur = myConnection.cursor()
     if v.get('mac') is None:
-        cur.execute("INSERT INTO venta (monto, tiendafk, cedula) VALUES (%s,%s,%s);", (v["monto"], v["tiendafk"], v["cedula"])) #INSERTAR EN LA TABLA venta
+        cur.execute("INSERT INTO venta (monto, tienda, cedula) VALUES (%s,%s,%s);", (v["monto"], v["tienda"], v["cedula"])) #INSERTAR EN LA TABLA venta
     else:
-        cur.execute("INSERT INTO venta (monto, tiendafk, cedula, mac) VALUES (%s,%s,%s,%s);", (v["monto"], v["tiendafk"], v["cedula"], v["mac"])) #INSERTAR EN LA TABLA venta
+        cur.execute("INSERT INTO venta (monto, tienda, cedula, mac) VALUES (%s,%s,%s,%s);", (v["monto"], v["tienda"], v["cedula"], v["mac"])) #INSERTAR EN LA TABLA venta
     myConnection.commit()
 
 #def insertarVentaMAC(vu):

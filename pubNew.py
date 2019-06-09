@@ -131,7 +131,6 @@ def main():
 				for j in range(len(tiendas)):
 					#por ahora
 					idTienda = tiendas[j]
-					idtorniquete = idTienda #por ahora
 					nombre = nombresTiendas[j]
 
 					dateEntrada = auxHoraultima + datetime.timedelta(hours=np.random.uniform(int(np.random.uniform(auxHoraultima.hour)),18), minutes=np.random.uniform(auxHoraultima.minute,60), seconds=np.random.uniform(0,60))
@@ -141,10 +140,9 @@ def main():
 					#entradas de torniquete para ese torniquete+=1
 					#hacer el payload del torniquete?
 					payloadT = {
-						"idtorniquete": idtorniquete,
+						"idtienda": idTienda,
 						"hentrada": str(dateEntrada),
-						"hsalida": str(dateSalida),
-						"tiendafk": idTienda
+						"hsalida": str(dateSalida)
 					}
 
 					client.publish('Sambil/torniquete',json.dumps(payloadT), qos=0)
@@ -156,7 +154,7 @@ def main():
 						if tieneMAC == True:
 							payloadV = {
 								"monto": monto,
-								"tiendafk": idTienda,
+								"tienda": idTienda,
 								"cedula": cedula,
 								"mac": mac
 							}
@@ -164,7 +162,7 @@ def main():
 						else:
 							payloadV = {
 								"monto": monto,
-								"tiendafk": idTienda,
+								"tienda": idTienda,
 								"cedula": cedula
 							}
 							client.publish('Sambil/venta',json.dumps(payloadV), qos=0)

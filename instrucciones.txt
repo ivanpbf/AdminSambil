@@ -1,0 +1,8 @@
+abre pgadmin, crea una base de datos llamada Proyecto1BD, haz restore y elige Sambil.sql,
+cambiar valores de subNew y pubNew de la conexion con la base de datos
+ corre subNew.py, corre pubNew.py
+se corre solo lo demas
+se puede ver en jupiter o en las vistas 
+Loscher Ivan
+Daniel Mesa
+Rodriguez Nicolas

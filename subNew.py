@@ -2,7 +2,7 @@ import ssl
 import sys
 import psycopg2
 import paho.mqtt.client
-import simplejson as json
+import json
 import time
 import datetime
 import numpy as np

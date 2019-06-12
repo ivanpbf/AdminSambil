@@ -7,7 +7,7 @@ import paho.mqtt.client
 import paho.mqtt.publish
 import datetime
 import numpy as np
-import simplejson as json
+import json
 
 myConnection = psycopg2.connect(host = 'localhost', user= 'postgres',password ='pass123', dbname= 'Proyecto1BD') #estos son los mios
 

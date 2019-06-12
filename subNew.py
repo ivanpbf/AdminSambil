@@ -17,12 +17,6 @@ def insertarRasgos(r):
         cur.execute("INSERT INTO rasgos (cedula, edad, sexo) VALUES (%s, %s, %s);", (r["cedula"], r["edad"], r["sexo"])) #INSERTAR EN LA TABLA rasgos
     myConnection.commit()
 
-#def insertarRasgosNO(nr):
-#    cur = myConnection.cursor()
-#    print(nr)
-#    cur.execute("INSERT INTO rasgos (cedula) VALUES (%s)", (nr["cedula"],)) #INSERTAR EN LA TABLA rasgos
-#    myConnection.commit()
-
 def insertarUsuario(u):
     cur = myConnection.cursor()
     cur.execute("INSERT INTO usuario (mac, cedula) VALUES (%s,%s);", (u["mac"],u["cedula"])) #INSERTAR EN LA TABLA usuario
@@ -41,11 +35,6 @@ def insertarVenta(v):
         cur.execute("INSERT INTO venta (monto, idtienda, cedula, mac) VALUES (%s,%s,%s,%s);", (v["monto"], v["idtienda"], v["cedula"], v["mac"])) #INSERTAR EN LA TABLA venta
     myConnection.commit()
 
-#def insertarVentaMAC(vu):
-#    cur = myConnection.cursor()
-#    cur.execute("INSERT INTO venta (monto, tiendafk, cedula, mac) VALUES (%s,%s,%s,%s);", (vu["monto"], vu["tiendafk"], vu["cedula"], vu["mac"])) #INSERTAR EN LA TABLA venta
-#    myConnection.commit()
-
 def insertarMesa(m):
     cur = myConnection.cursor()
     if m.get('mac') is None:
@@ -54,25 +43,12 @@ def insertarMesa(m):
         cur.execute("INSERT INTO mesa (nmesa, fechaocupada, fechadesocupada, mac) VALUES (%s,%s,%s,%s);", (m["nmesa"], m["fechaocupada"], m["fechadesocupada"], m["mac"])) #INSERTAR EN LA TABLA mesa
     myConnection.commit()
 
-#def insertarMesaMAC(mu):
-#    cur = myConnection.cursor()
-#    cur.execute("INSERT INTO mesa (nmesa, fechaocupada, fechadesocupada, mac) VALUES (%s,%s,%s,%s);", (mu["nmesa"], mu["fechaocupada"], mu["fechadesocupada"], mu["mac"])) #INSERTAR EN LA TABLA mesa
-#    myConnection.commit()
+
 
 def insertarAcceso(a):
     cur = myConnection.cursor()
     cur.execute("INSERT INTO acceso (entrada, salida, horaacceso, horasalida, cedula) VALUES (%s,%s,%s,%s,%s);", (a["entrada"], a["salida"], a["horaacceso"], a["horasalida"], a["cedula"])) #INSERTAR EN LA TABLA acceso
     myConnection.commit()
-
-#def actualizarRasgos(se):
-#    cur = myConnection.cursor()
-#    cur.execute('UPDATE rasgos SET "edad" = %s, "sexo" = %s WHERE "cedula" = %s;', (se["edad"], se["sexo"], se["cedula"]))
-#    myConnection.commit()
-
-#def actualizarMAC(umu):
-#    cur = myConnection.cursor()
-#    cur.execute('UPDATE usuario SET "mac" = %s WHERE "cedula" = %s;', (umu["mac"], umu["cedula"]))
-#    myConnection.commit()
 
 def on_connect(client, userdata, flags, rc):    
     print('Conectado ID (%s)' % client._client_id)
@@ -83,12 +59,6 @@ def on_message(client, userdata, message):
     print(r)  
     print('------------------------------')     
     insertarRasgos(r)
-
-#def on_message2(client, userdata, message):   
-#    nr = json.loads(message.payload.decode('utf-8'))
-#    print(nr)  
-#    print('------------------------------')     
-#    insertarRasgosNO(nr)
 
 def on_message3(client, userdata, message):   
     u = json.loads(message.payload.decode('utf-8'))
@@ -108,23 +78,11 @@ def on_message5(client, userdata, message):
     print('------------------------------')     
     insertarVenta(v)
 
-#def on_message6(client, userdata, message):   
-#    vu = json.loads(message.payload.decode('utf-8'))
-#    print(vu) 
-#    print('------------------------------')     
-#    insertarVentaMAC(vu)
-
 def on_message7(client, userdata, message):   
     m = json.loads(message.payload.decode('utf-8'))
     print(m) 
     print('------------------------------')     
     insertarMesa(m)
-
-#def on_message8(client, userdata, message):   
-#    mu = json.loads(message.payload.decode('utf-8'))
-#    print(mu) 
-#    print('------------------------------')     
-#    insertarMesaMAC(mu)
 
 def on_message9(client, userdata, message):   
     a = json.loads(message.payload.decode('utf-8'))
@@ -132,32 +90,15 @@ def on_message9(client, userdata, message):
     print('------------------------------')     
     insertarAcceso(a)
 
-#def on_message10(client, userdata, message):   
-#    se = json.loads(message.payload.decode('utf-8'))
-#    print(se) 
-#    print('------------------------------')     
-#    actualizarRasgos(se)
-
-#def on_message11(client, userdata, message):   
-#    umu = json.loads(message.payload.decode('utf-8'))
-#    print(umu) 
-#    print('------------------------------')     
-#    actualizarMAC(umu)
-
 def main():	
     client = paho.mqtt.client.Client()
     client.on_connect = on_connect
     client.message_callback_add('Sambil/rasgos',  on_message)
-#    client.message_callback_add('Sambil/rasgos',  on_message2)
     client.message_callback_add('Sambil/usuario', on_message3)
     client.message_callback_add('Sambil/torniquete', on_message4)
     client.message_callback_add('Sambil/venta', on_message5)
-#    client.message_callback_add('Sambil/venta', on_message6)
     client.message_callback_add('Sambil/mesa', on_message7)
-#    client.message_callback_add('Sambil/mesa', on_message8)
     client.message_callback_add('Sambil/acceso', on_message9)
-#    client.message_callback_add('Sambil/rasgos', on_message10)
-#    client.message_callback_add('Sambil/usuario', on_message11)
     client.connect(host='localhost') 
     client.loop_forever()
 
